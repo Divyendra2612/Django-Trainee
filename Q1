@@ -1,0 +1,23 @@
+Q1
+By default, Django signals are executed synchronously. This means that the signal handlers (receivers) run in the same thread and process as the code that triggers the signal. The execution of the main function will wait for all signal handlers to complete before proceeding.
+
+Proof With Code
+
+import time
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+
+# Define a signal receiver that deliberately delays execution
+@receiver(post_save, sender=User)
+def slow_signal_handler(sender, instance, **kwargs):
+    print("Signal received. Starting delay...")
+    time.sleep(5)  # Simulate a long-running process
+    print("Signal handler finished execution.")
+
+# Simulate saving a user instance
+if __name__ == "__main__":
+    print("Before saving user.")
+    user = User(username="testuser")
+    user.save()  # This will trigger post_save and execute the signal handler
+    print("After saving user.")  # This will print only after the signal handler completes
